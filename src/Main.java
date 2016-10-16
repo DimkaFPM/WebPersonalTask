@@ -8,6 +8,7 @@ public class Main {
         KernelLink kernelLink = createKernelLink();
 
         testTestArrayPackage(kernelLink);
+        testEquationPackage(kernelLink);
         testLabs23SolverPackage(kernelLink);
     }
 
@@ -36,26 +37,48 @@ public class Main {
         System.out.println(String.format("Sum: %d", result));
     }
 
-    private static void testLabs23SolverPackage(KernelLink kernelLink) throws MathLinkException {
-        kernelLink.evaluate("<<" + "Labs23Solver.m");//подключаем пакет
+    private static void testEquationPackage(KernelLink kernelLink) throws MathLinkException {
+        kernelLink.evaluate("<<" + "EquationPackage.m");//подключаем пакет
         kernelLink.discardAnswer();// дожидаемся загрузки
 
         kernelLink.putFunction("EvaluatePacket", 1);
 
-        kernelLink.putFunction("SolveLabs23", 8);
+        kernelLink.putFunction("getEquation", 1);
+        kernelLink.put(getLeftPartsParameters());
+
+        kernelLink.endPacket();
+        kernelLink.waitForAnswer();
+        System.out.println(kernelLink.getExpr());
+    }
+
+    private static void testLabs23SolverPackage(KernelLink kernelLink) throws MathLinkException {
+        kernelLink.evaluate("<<" + "Labs23Solver.m");//подключаем пакет
+        kernelLink.discardAnswer();// дожидаемся загрузки
+
+        kernelLink.evaluate("<<" + "EquationPackage.m");//подключаем пакет
+        kernelLink.discardAnswer();// дожидаемся загрузки
+
+        kernelLink.putFunction("EvaluatePacket", 1);
+
+        kernelLink.putFunction("SolveLabs23", 10);
+        kernelLink.put("x");
+        kernelLink.put("y");
         kernelLink.put(4);//ks
         kernelLink.put(6);//is
         kernelLink.put(createU());
         kernelLink.put(createUt());
         kernelLink.put(createUc());
         kernelLink.put(createA());
-        //TODO add leftParts as argument
+
+        kernelLink.putFunction("getEquation", 1);
+        kernelLink.put(getLeftPartsParameters());
+
         kernelLink.put(createRightParts());
 
         kernelLink.endPacket();
         kernelLink.waitForAnswer();
 
-        //TODO result output
+        System.out.println(kernelLink.getExpr());
     }
 
     private static int[][][] createU() {
