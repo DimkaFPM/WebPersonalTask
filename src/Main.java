@@ -1,20 +1,18 @@
-import com.wolfram.jlink.KernelLink;
-import com.wolfram.jlink.MathLinkException;
-import com.wolfram.jlink.MathLinkFactory;
+import com.wolfram.jlink.*;
 
 public class Main {
 
-    public static void main(String[] args) throws MathLinkException {
+    public static void main(String[] args) throws MathLinkException, ExprFormatException {
         KernelLink kernelLink = createKernelLink();
 
-        testTestArrayPackage(kernelLink);
+       testTestArrayPackage(kernelLink);
         testEquationPackage(kernelLink);
         testLabs23SolverPackage(kernelLink);
     }
 
     private static KernelLink createKernelLink() throws MathLinkException {
         //TODO fix path according to your computer
-        String path = "-linkmode launch -linkname 'D:/Wolfram Research/Mathematica/9.0/MathKernel'";
+        String path = "-linkmode launch -linkname 'C:/Program Files/Wolfram Research/Mathematica/9.0/MathKernel'";
         KernelLink kernelLink = MathLinkFactory.createKernelLink(path);// подключаем ядро
         kernelLink.discardAnswer();//дожидаемся загрузки
 
@@ -26,9 +24,8 @@ public class Main {
         kernelLink.discardAnswer();// дожидаемся загрузки
 
         kernelLink.putFunction("EvaluatePacket", 1);
-
-        kernelLink.putFunction("SumArray", 1);
-        kernelLink.put(new int[]{1, 2, 3});
+            kernelLink.putFunction("SumArray", 1);
+                kernelLink.put(new int[]{1, 2, 3});
 
         kernelLink.endPacket();
         kernelLink.waitForAnswer();
@@ -42,44 +39,41 @@ public class Main {
         kernelLink.discardAnswer();// дожидаемся загрузки
 
         kernelLink.putFunction("EvaluatePacket", 1);
-
-        kernelLink.putFunction("getEquation", 1);
-        kernelLink.put(getLeftPartsParameters());
+            kernelLink.putFunction("getEquation", 2);
+                kernelLink.put(getLeftPartsParameters());
+                kernelLink.putSymbol("x");
 
         kernelLink.endPacket();
         kernelLink.waitForAnswer();
         System.out.println(kernelLink.getExpr());
     }
 
-    private static void testLabs23SolverPackage(KernelLink kernelLink) throws MathLinkException {
+    private static void testLabs23SolverPackage(KernelLink kernelLink) throws MathLinkException, ExprFormatException {
         kernelLink.evaluate("<<" + "Labs23Solver.m");//подключаем пакет
         kernelLink.discardAnswer();// дожидаемся загрузки
 
-        kernelLink.evaluate("<<" + "EquationPackage.m");//подключаем пакет
-        kernelLink.discardAnswer();// дожидаемся загрузки
-
         kernelLink.putFunction("EvaluatePacket", 1);
-
-        kernelLink.putFunction("SolveLabs23", 10);
-        kernelLink.put("x");
-        kernelLink.put("y");
-        kernelLink.put(4);//ks
-        kernelLink.put(6);//is
-        kernelLink.put(createU());
-        kernelLink.put(createUt());
-        kernelLink.put(createUc());
-        kernelLink.put(createA());
-
-        kernelLink.putFunction("getEquation", 1);
-        kernelLink.put(getLeftPartsParameters());
-
-        kernelLink.put(createRightParts());
-
+            kernelLink.putFunction("Export", 2);
+                kernelLink.put("result.nb");
+                kernelLink.putFunction("TestSolve", 10);
+                    kernelLink.putSymbol("x");
+                    kernelLink.putSymbol("y");
+                    kernelLink.put(ks);
+                    kernelLink.put(is);
+                    kernelLink.put(createU());
+                    kernelLink.put(createUt());
+                    kernelLink.put(createUc());
+                    kernelLink.put(createA());
+                    kernelLink.put(getLeftPartsParameters());
+                    kernelLink.put(createRightParts());
         kernelLink.endPacket();
         kernelLink.waitForAnswer();
-
-        System.out.println(kernelLink.getExpr());
+        Expr expr = kernelLink.getExpr();
+        System.out.println(expr.asString());
     }
+
+    public static final int ks = 4;
+    public static final int is = 6;
 
     private static int[][][] createU() {
         return new int[][][]{
