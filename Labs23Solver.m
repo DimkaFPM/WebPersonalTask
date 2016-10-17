@@ -1,5 +1,3 @@
-(* ::Package:: *)
-
 BeginPackage["Labs23Solver`"]
 
 SolveLabs23::eqnpartsmismatch="There are `1` left parts and `2` right parts.";
@@ -10,11 +8,45 @@ SolveLabs23::nottree="Ut arcs for flow `1` do not form a spanning tree.";
 SolveLabs23::wronguccount="Total size of all Uc's must be equal to the number of equations.";
 SolveLabs23::ucuthavecommon="Uc and Ut for flow type `1` have some common arcs.";
 SolveLabs23::badeqn="Equation no. `1` has some unrecognized tokens in left part: `2` != 0.";
+getEquation::usage = "create equation string from parameter";
+getSubscription::usage = "create equation string from parameter";
+TestSolve::usage = "create equation string from parameter";
 
 Begin["`Private`"]
 (*
 Table[expr, n] - generates a list of n copies of expr. 
 *)
+getEquation[arr_, x_] :=
+  Block [{r, equation, param, leftParts = {}, i, j, k, a , eq},
+    For[i = 1, i <= Length[arr], i++,
+      equation = 0;
+      eq = arr[[i]];
+      For[j = 1, j <= Length[eq], j++,
+           param = eq[[j]];
+           equation +=
+          param[[1]]* Subscript[x[param[[2]]], param[[3]], param[[4]]];
+        ];
+      AppendTo[leftParts, equation];
+      ];
+    Return[leftParts]
+  ];
+
+getSubscription[arr_,a_] :=
+  Block [{i},
+    For[i = 1, i <= Length[arr], i++,
+      Subscript[a,i]=arr[[i]];
+     ];
+  ];
+
+TestSolve[ x_, y_, ks_,is_,UArray_, UtArray_, UcArray_, aArray_,leftParts_,rightParts_]:=Block[{U,Ut,Uc,a},
+getSubscription[UArray, U];
+getSubscription[UtArray, Ut];
+getSubscription[UcArray, Uc];
+getSubscription[aArray, a];
+lefts=getEquation[leftParts,x];
+Return[SolveLabs23[x,y,ks,is,U,Ut,Uc,a,lefts,rightParts]];
+]
+
 BuildNodeEquations[x_,u_,rightParts_]:=Block[{nodeBalanceList=Table[0,{Length[rightParts]}],res={},i},
 Clear[x];
 Do[Block[{a=arc[[1]],b=arc[[2]]},

@@ -4,7 +4,7 @@ getEquation::usage = "create equation string from parameter";
 
 Begin["`Private`"];
 
-getEquation[arr_] :=
+getEquation[arr_,x_] :=
  Block [{r, equation, param, leftParts = {}, i, j, k, a , eq},
   For[i = 1, i <= Length[arr], i++,
    equation = 0;
